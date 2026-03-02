@@ -2,10 +2,16 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, CheckCircle, Loader2, Mail, MapPin } from "lucide-react";
-import { toast } from "sonner"; // Import Sonner
+import { toast } from "sonner"; 
 import Magnetic from "./Magnetic";
 
-export default function Contact({ lang }: { lang: string }) {
+// FIXED: Added 't' to the props interface
+interface ContactProps {
+  lang: string;
+  t: any; 
+}
+
+export default function Contact({ lang, t }: ContactProps) {
   const [status, setStatus] = useState<"idle" | "sending" | "success">("idle");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -29,7 +35,6 @@ export default function Contact({ lang }: { lang: string }) {
       if (response.ok) {
         setStatus("success");
         
-        // Localized Toast Feedback
         const toastMsg = {
           en: "Message sent! I'll be in touch.",
           fr: "Message envoyé ! Je vous contacterai.",
@@ -42,7 +47,6 @@ export default function Contact({ lang }: { lang: string }) {
         
         (e.target as HTMLFormElement).reset();
         
-        // Reset status to idle after 3 seconds
         setTimeout(() => setStatus("idle"), 3000);
       } else {
         throw new Error("Failed to send");
@@ -54,21 +58,32 @@ export default function Contact({ lang }: { lang: string }) {
   };
 
   return (
-    <section id="contact" className="py-32 relative">
+    <section id="contact" className="py-32 relative scroll-mt-20">
       <div className="max-w-5xl mx-auto px-6">
         <div className="flex flex-col md:flex-row gap-16">
           
           {/* Info Side */}
           <div className="flex-1 space-y-8">
-            <h2 className="text-4xl font-bold tracking-tight">
-              Let's build something <span className="text-blue-600 underline">extraordinary</span>.
-            </h2>
+            <motion.h2 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              className="text-4xl md:text-5xl font-black tracking-tight leading-tight uppercase italic"
+            >
+              {/* FIXED: Using translation key for the heading if available, or a fallback */}
+              {t.contactTitle || "Let's build something"} <span className="text-blue-600 underline">extraordinary</span>.
+            </motion.h2>
             <div className="space-y-4">
-               <div className="flex items-center gap-4 text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">
-                 <Mail size={18}/> obenggyanp@gmail.com
+               <div className="flex items-center gap-4 text-slate-500 hover:text-blue-600 transition-colors cursor-pointer group">
+                 <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                    <Mail size={18}/>
+                 </div>
+                 <span className="font-mono text-sm">obenggyanp@gmail.com</span>
                </div>
                <div className="flex items-center gap-4 text-slate-500">
-                 <MapPin size={18}/> Accra, Ghana
+                 <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800">
+                    <MapPin size={18}/>
+                 </div>
+                 <span className="font-bold uppercase tracking-widest text-xs">Accra, Ghana</span>
                </div>
             </div>
           </div>
@@ -86,7 +101,7 @@ export default function Contact({ lang }: { lang: string }) {
                   name="name" 
                   placeholder={lang === "zh" ? "姓名" : "Name"} 
                   required 
-                  className="w-full bg-slate-50/50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" 
+                  className="w-full bg-slate-50/50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:uppercase placeholder:text-[10px] placeholder:tracking-widest placeholder:font-black" 
                 />
               </div>
               <div className="space-y-2">
@@ -95,7 +110,7 @@ export default function Contact({ lang }: { lang: string }) {
                   type="email" 
                   placeholder={lang === "zh" ? "电子邮件" : "Email"} 
                   required 
-                  className="w-full bg-slate-50/50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all" 
+                  className="w-full bg-slate-50/50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:uppercase placeholder:text-[10px] placeholder:tracking-widest placeholder:font-black" 
                 />
               </div>
               <div className="space-y-2">
@@ -104,29 +119,29 @@ export default function Contact({ lang }: { lang: string }) {
                   placeholder={lang === "zh" ? "您的信息" : "Your Message"} 
                   rows={4} 
                   required 
-                  className="w-full bg-slate-50/50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-3xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none transition-all" 
+                  className="w-full bg-slate-50/50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-3xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none transition-all placeholder:uppercase placeholder:text-[10px] placeholder:tracking-widest placeholder:font-black" 
                 />
               </div>
               
               <Magnetic>
                 <button 
                   disabled={status !== "idle"}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 rounded-2xl flex items-center justify-center gap-3 transition-all disabled:opacity-70 shadow-lg shadow-blue-500/20"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-xs py-5 rounded-2xl flex items-center justify-center gap-3 transition-all disabled:opacity-70 shadow-lg shadow-blue-500/40"
                 >
                   <AnimatePresence mode="wait">
                     {status === "idle" && (
                       <motion.span key="send" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
-                        {lang === "zh" ? "发送消息" : "Send Message"} <Send size={18} />
+                        {lang === "zh" ? "发送消息" : "Send Message"} <Send size={16} />
                       </motion.span>
                     )}
                     {status === "sending" && (
                       <motion.span key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
-                        {lang === "zh" ? "发送中..." : "Sending..."} <Loader2 size={18} className="animate-spin" />
+                        {lang === "zh" ? "发送中..." : "Sending..."} <Loader2 size={16} className="animate-spin" />
                       </motion.span>
                     )}
                     {status === "success" && (
-                      <motion.span key="success" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-2 text-green-300">
-                        {lang === "zh" ? "已发送！" : "Sent!"} <CheckCircle size={18} />
+                      <motion.span key="success" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-2 text-white">
+                        {lang === "zh" ? "已发送！" : "Sent!"} <CheckCircle size={16} />
                       </motion.span>
                     )}
                   </AnimatePresence>
