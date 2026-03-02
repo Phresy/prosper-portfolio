@@ -5,15 +5,19 @@ import { Send, CheckCircle, Loader2, Mail, MapPin } from "lucide-react";
 import { toast } from "sonner"; 
 import Magnetic from "./Magnetic";
 
-// This tells TypeScript: "I accept ANY properties passed to me"
-// This is the 'Emergency Fix' to stop the build error.
-export default function Contact(props: any) {
-  const { lang, t } = props;
+// FIXED: Added 't' to the props interface
+interface ContactProps {
+  lang: string;
+  t: any; 
+}
+
+export default function Contact({ lang, t }: ContactProps) {
   const [status, setStatus] = useState<"idle" | "sending" | "success">("idle");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("sending");
+
     const formData = new FormData(e.currentTarget);
     const data = {
       name: formData.get("name"),
@@ -30,32 +34,122 @@ export default function Contact(props: any) {
 
       if (response.ok) {
         setStatus("success");
-        toast.success("Message sent!");
+        
+        const toastMsg = {
+          en: "Message sent! I'll be in touch.",
+          fr: "Message envoyé ! Je vous contacterai.",
+          es: "¡Mensaje enviado! Estaré en contacto.",
+          de: "Nachricht gesendet! Ich melde mich.",
+          zh: "消息已发送！我会尽快联系您。"
+        };
+
+        toast.success(toastMsg[lang as keyof typeof toastMsg] || toastMsg.en);
+        
         (e.target as HTMLFormElement).reset();
+        
         setTimeout(() => setStatus("idle"), 3000);
       } else {
-        throw new Error();
+        throw new Error("Failed to send");
       }
     } catch (error) {
-      toast.error("Failed to send.");
+      toast.error("Transmission failed. Please try again later.");
       setStatus("idle");
     }
   };
 
   return (
-    <section id="contact" className="py-32 relative">
+    <section id="contact" className="py-32 relative scroll-mt-20">
       <div className="max-w-5xl mx-auto px-6">
-        <h2 className="text-5xl font-black uppercase italic mb-12">
-          {t?.contactTitle || "Get in Touch"}
-        </h2>
-        <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
-           <input name="name" placeholder="Name" required className="w-full p-4 bg-slate-100 dark:bg-slate-800 rounded-xl outline-none" />
-           <input name="email" type="email" placeholder="Email" required className="w-full p-4 bg-slate-100 dark:bg-slate-800 rounded-xl outline-none" />
-           <textarea name="message" placeholder="Message" rows={4} required className="w-full p-4 bg-slate-100 dark:bg-slate-800 rounded-xl outline-none" />
-           <button className="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold uppercase tracking-widest">
-             {status === "idle" ? "Send Message" : "Processing..."}
-           </button>
-        </form>
+        <div className="flex flex-col md:flex-row gap-16">
+          
+          {/* Info Side */}
+          <div className="flex-1 space-y-8">
+            <motion.h2 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              className="text-4xl md:text-5xl font-black tracking-tight leading-tight uppercase italic"
+            >
+              {/* FIXED: Using translation key for the heading if available, or a fallback */}
+              {t.contactTitle || "Let's build something"} <span className="text-blue-600 underline">extraordinary</span>.
+            </motion.h2>
+            <div className="space-y-4">
+               <div className="flex items-center gap-4 text-slate-500 hover:text-blue-600 transition-colors cursor-pointer group">
+                 <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                    <Mail size={18}/>
+                 </div>
+                 <span className="font-mono text-sm">obenggyanp@gmail.com</span>
+               </div>
+               <div className="flex items-center gap-4 text-slate-500">
+                 <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800">
+                    <MapPin size={18}/>
+                 </div>
+                 <span className="font-bold uppercase tracking-widest text-xs">Accra, Ghana</span>
+               </div>
+            </div>
+          </div>
+
+          {/* Form Side */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex-1 bg-white/40 dark:bg-slate-900/40 backdrop-blur-2xl border border-white/20 dark:border-slate-800/50 p-10 rounded-[2.5rem] shadow-2xl"
+          >
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <input 
+                  name="name" 
+                  placeholder={lang === "zh" ? "姓名" : "Name"} 
+                  required 
+                  className="w-full bg-slate-50/50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:uppercase placeholder:text-[10px] placeholder:tracking-widest placeholder:font-black" 
+                />
+              </div>
+              <div className="space-y-2">
+                <input 
+                  name="email" 
+                  type="email" 
+                  placeholder={lang === "zh" ? "电子邮件" : "Email"} 
+                  required 
+                  className="w-full bg-slate-50/50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:uppercase placeholder:text-[10px] placeholder:tracking-widest placeholder:font-black" 
+                />
+              </div>
+              <div className="space-y-2">
+                <textarea 
+                  name="message" 
+                  placeholder={lang === "zh" ? "您的信息" : "Your Message"} 
+                  rows={4} 
+                  required 
+                  className="w-full bg-slate-50/50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-3xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none transition-all placeholder:uppercase placeholder:text-[10px] placeholder:tracking-widest placeholder:font-black" 
+                />
+              </div>
+              
+              <Magnetic>
+                <button 
+                  disabled={status !== "idle"}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-xs py-5 rounded-2xl flex items-center justify-center gap-3 transition-all disabled:opacity-70 shadow-lg shadow-blue-500/40"
+                >
+                  <AnimatePresence mode="wait">
+                    {status === "idle" && (
+                      <motion.span key="send" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                        {lang === "zh" ? "发送消息" : "Send Message"} <Send size={16} />
+                      </motion.span>
+                    )}
+                    {status === "sending" && (
+                      <motion.span key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                        {lang === "zh" ? "发送中..." : "Sending..."} <Loader2 size={16} className="animate-spin" />
+                      </motion.span>
+                    )}
+                    {status === "success" && (
+                      <motion.span key="success" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-2 text-white">
+                        {lang === "zh" ? "已发送！" : "Sent!"} <CheckCircle size={16} />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
+              </Magnetic>
+            </form>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
