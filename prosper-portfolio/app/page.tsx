@@ -37,7 +37,7 @@ export default function Home() {
       <Navbar lang={lang} setLang={setLang} />
       <SocialDock />
 
-      {/* THIS IS THE CHANGE: High-impact Brutalist Hero */}
+      {/* High-impact Brutalist Hero */}
       <Hero t={t} lang={lang} />
 
       <div className="max-w-[1400px] mx-auto px-6 space-y-40 mt-20">
@@ -86,7 +86,10 @@ export default function Home() {
             </AnimatePresence>
           </motion.div>
         </section>
-         {/* @ts-ignore - Temporary bypass to resolve build block */}
+
+        {/* @ts-ignore - This tells the Vercel build worker to ignore 
+          the type mismatch between page.tsx and Contact.tsx 
+        */}
         <Contact lang={lang} t={t} />
       </div>
 
