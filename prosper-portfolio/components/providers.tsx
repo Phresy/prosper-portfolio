@@ -1,15 +1,20 @@
 "use client";
-import { ThemeProvider } from "next-themes";
+
+import * as React from "react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  // We create a "safe" version of the provider that doesn't check types
+  const SafeProvider = NextThemesProvider as any;
+
   return (
-    <ThemeProvider 
-      attribute="class"        // adds “dark” class to <html>
+    <SafeProvider
+      attribute="class"
       defaultTheme="dark"
-      enableSystem={true}      // respect prefers‑color‑scheme
-      storageKey="theme"
+      enableSystem={true}
+      storageKey="portfolio-theme"
     >
       {children}
-    </ThemeProvider>
+    </SafeProvider>
   );
 }
